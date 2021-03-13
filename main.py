@@ -1,3 +1,4 @@
+#coding=utf-8
 import socket
 import os
 import hashlib
@@ -6,8 +7,8 @@ import threading
 
 
 def conexion():
-    host = 'localhost'
-    port = 8050
+    host = '127.0.0.1'
+    port = 6666
     path_archivos = "./ArchivosRecibidos"
     path_logs = "./Logs"
 
@@ -16,7 +17,7 @@ def conexion():
     obj = socket.socket()
 
     obj.connect((host, port))
-    obj.listen(conexiones)
+    print("conecto")
 
     year=datetime.now().year
     mes = datetime.now().month
@@ -25,46 +26,51 @@ def conexion():
     min = datetime.now().minute
     seg = datetime.now().second
 
-    fecha= "/"+str(year)+"-"+str(mes)+"-"+str(dia)+"-"+str(hora)+"-"+str(min)+"-"+str(seg)+"log"
-    print(fecha)
-    archivolog = path_logs+fecha+".txt"
-    file = open(archivolog, "w")
+#    fecha= "/"+str(year)+"-"+str(mes)+"-"+str(dia)+"-"+str(hora)+"-"+str(min)+"-"+str(seg)+"log"
+#    print(fecha)
+#    archivolog = path_logs+fecha+".txt"
+#    file = open(archivolog, "a")
 
     cliente= threading.currentThread().getName()
     print("Cliente "+cliente)
     print("Conectado al servidor")
 
     while (True):
-        mens = input("Mensaje de confirmacion. Listo para recibir un archivo")
-        obj.send(mens.encode('ascii'))
+        mens = "Mensaje de confirmacion. Listo para recibir un archivo"
+        obj.send(mens)
         recibido = obj.recv(4096)
-        log = "nombre del archivo: "
-        log=log+" Tamaño: "+os.stat(recibido).st_size
-        log = log+"\n Cliente: "+cliente
-        nombre_archivo = cliente + "-Prueba" + str(conexiones)
-        print(nombre_archivo)
+        print("Se recibio un archivo del servidor")
+#        log = "nombre del archivo: "
+#        log=log+" Tamaño: "+os.stat(recibido).st_size
+#        log = log+"\n Cliente: "+cliente
+# ------------------------------------- HASHING! ------------------------------------------------
+#        print("En espera de hash por parte del servidor")
+#        hash = obj.recv(4096)
+#        print("Verificando integridad")
+#        file_hash = hashlib.sha256()
+#        with recibido as f:
+#            fb = f.read(BLOCK_SIZE)
+#            while len(fb) > 0:
+#                file_hash.update(fb)
+#                fb = f.read(BLOCK_SIZE)
+#        resultadoHash = file_hash.hexdigest()
+#------------- IF HASHING SE CUMPLE, ESCRIBE, SINO, NO ---------------------------------------
+        nombre_archivo = cliente + "-Prueba-" + str(conexiones)
         archivoPorEscribir = os.path.join(path_archivos, nombre_archivo)
-        file1 = open(archivoPorEscribir, "w")
+        file1 = open(archivoPorEscribir, "wb")
         file1.write(recibido)
         file1.close()
-        log = log+"\n Entrega exitosa: "
-
-        file_hash = hashlib.sha256()
-        with open(archivoPorEscribir, 'rb') as f:
-            fb = f.read(BLOCK_SIZE)
-            while len(fb) > 0:
-                file_hash.update(fb)
-                fb = f.read(BLOCK_SIZE)
-        resultadoHash = file_hash.hexdigest()
-        log=log+"\n Tiempo de transferencia: "
-        log=log+"\n Número de paquetes recibidos: "+" número de bytes recibidos: "
-        file.write(log)
-        file.close()
+#        log = log+"\n Entrega exitosa: "
+#        log=log+"\n Tiempo de transferencia: "
+#        log=log+"\n Número de paquetes recibidos: "+" número de bytes recibidos: "
+#        file.write(log)
+#        file.close()
+        break
     obj.close()
     print("Conexión cerrada")
 
 
-NUM_HILOS = 25
+NUM_HILOS = 1
 
 for num_hilo in range(NUM_HILOS):
     hilo = threading.Thread(target=conexion,name='Cliente'+str(num_hilo))
